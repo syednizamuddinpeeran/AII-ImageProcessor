@@ -19,7 +19,16 @@ namespace imageShow
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Imshow());
+            OpenFileDialog openDial = new OpenFileDialog();
+            openDial.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
+            string fileName ="";
+    again:  if(openDial.ShowDialog() == DialogResult.OK)
+            {
+                fileName = openDial.FileName;
+            }
+            else
+                goto again;
+            Application.Run(new Imshow(new Bitmap(fileName)));
         }
     }
 }
