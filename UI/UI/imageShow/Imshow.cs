@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace imageShow
 {
-    public partial class Form1 : Form
+    public partial class Imshow : Form
     {
-        public Form1()
+        public Imshow()
         {
             InitializeComponent();
         }
