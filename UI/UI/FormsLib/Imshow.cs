@@ -8,11 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace imageShow
+namespace FormsLib
 {
     public partial class Imshow : Form
     {
         public Imshow()
+        {
+            InitializeComponent();
+        }
+        public Imshow(Bitmap Image)
         {
             InitializeComponent();
         }

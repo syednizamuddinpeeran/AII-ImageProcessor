@@ -1,4 +1,4 @@
-﻿namespace imageShow
+﻿namespace FormsLib
 {
     partial class Imshow
     {
