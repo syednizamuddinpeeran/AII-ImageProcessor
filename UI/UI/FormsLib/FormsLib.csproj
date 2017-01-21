@@ -49,11 +49,33 @@
       <DependentUpon>Imshow.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Imshow.resx">
       <DependentUpon>Imshow.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="assets\cursor1600.png" />
+    <Content Include="assets\fit2screen.png" />
+    <Content Include="assets\fittoscreen.png" />
+    <Content Include="assets\normal_distribution_histogram1600.png" />
+    <Content Include="assets\openfile_Icon.png" />
+    <Content Include="assets\move cursor.png" />
+    <Content Include="assets\save-icon-png--4.png" />
+    <Content Include="assets\Save.png" />
+    <Content Include="assets\Zoom_in_magnifying_glass.png" />
+    <Content Include="assets\Zoom_out_shopping.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
