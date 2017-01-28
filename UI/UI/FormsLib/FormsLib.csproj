@@ -42,6 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AboutBoxImshow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AboutBoxImshow.Designer.cs">
+      <DependentUpon>AboutBoxImshow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Imshow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,8 +60,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AboutBoxImshow.resx">
+      <DependentUpon>AboutBoxImshow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Imshow.resx">
       <DependentUpon>Imshow.cs</DependentUpon>
     </EmbeddedResource>
@@ -76,6 +90,12 @@
     <Content Include="assets\Save.png" />
     <Content Include="assets\Zoom_in_magnifying_glass.png" />
     <Content Include="assets\Zoom_out_shopping.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

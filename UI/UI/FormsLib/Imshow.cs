@@ -25,6 +25,8 @@ namespace FormsLib
 
         #region Property definitions
 
+        public string fileName { get; set; }
+
         /// <summary>
         /// Image to be displayed in imshow
         /// </summary>
@@ -38,23 +40,19 @@ namespace FormsLib
         /// <summary>
         /// get the color of the pixel under the mouse pointer
         /// </summary>
-        Color mousePixelColor =Color.Black;
+        Color mousePixelColor =new Color();
         
         /// <summary>
         /// check is image is movable
         /// </summary>
         public bool Ismovable { get; set; }
-        
-        /// <summary>
-        /// check if the mouse button is down
-        /// </summary>
-        public bool IsmouseDown { get; set; }
-      
+
         /// <summary>
         /// gives the last recorded location of the cursor
         /// </summary>
-        Point lastKloc;
+        Point lastKloc=new Point();
 
+        public bool IscontrolDown { get; set; }
         #endregion
 
         #region Constructors
@@ -75,46 +73,126 @@ namespace FormsLib
         public Imshow(Bitmap image)
         {
             InitializeComponent();
+            fileName = "Default";
             initi();
             Image = image;
             pictureBox.Image = Image;
             resize();
         }
-        
+
+        public Imshow(Bitmap image, string windowName)
+        {
+            InitializeComponent();
+            fileName = windowName;
+            initi();
+            Image = image;
+            pictureBox.Image = Image;
+            resize();
+        }
         #endregion
 
         #region EventHandlers
-
-        #region FormEventHandlers
         
-        /// <summary>
-        /// Tick handler
-        /// </summary>
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            //need work
-            Point point =pixelLocationInImageUnderthePointer();
-            mousePixelColor = GetColorAt(MousePosition.X, MousePosition.Y);
-            toolStripPixelInfo.Text = "X:" + point.X + ",Y:" + point.Y + "Red:" + mousePixelColor.R.ToString() + ",Green" + mousePixelColor.G.ToString() + ",Blue:" + mousePixelColor.B.ToString();
-            PixelColor.BackColor=mousePixelColor;
-        }
-
         /// <summary>
         /// Adds event anddlers to suscriptions 
         /// </summary>
         private void addeventhandlers()
         {
-            pictureBox.MouseMove += Imshow_MouseMove;
             pictureBox.MouseDown += Imshow_MouseDown;
             pictureBox.MouseUp += Imshow_MouseUp;
             Resize += Imshow_Resize;
+            KeyDown += Imshow_KeyDown;
+            KeyUp += Imshow_KeyUp;
+            pictureBox.MouseWheel += PictureBox_MouseWheel;
+        }
+
+        #region FormEventHandlers
+
+        /// <summary>
+        /// Tick handler
+        /// </summary>
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            Point point =pixelLocationInImageUnderthePointer();
+            mousePixelColor = GetColorAt(MousePosition.X, MousePosition.Y);
+            toolStripPixelInfo.Text = (
+                    ((point.X >=0 && point.Y >=0) && 
+                    (point.X < Image.Width-1 && point.Y < Image.Height-1))? 
+                        String.Format("X:" + point.X + ",Y:" + point.Y): 
+                        ("Cursor out of picture")) 
+                    + "Red:" + mousePixelColor.R.ToString() + 
+                    ",Green" + mousePixelColor.G.ToString() + 
+                    ",Blue:" + mousePixelColor.B.ToString();
+            PixelColor.BackColor=mousePixelColor;
         }
 
         private void Imshow_Resize(object sender, EventArgs e)
         {
             resize();
+            recenter();
         }
 
+        private void Imshow_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.P:
+                    movepanToolStripMenuItem_Click(sender, e);
+                    break;
+                case Keys.S:
+                    if (IscontrolDown)
+                    {
+                        Save();
+                    }
+                    break;
+                case Keys.O:
+                    if (IscontrolDown)
+                    {
+                        open();
+                    }
+                    break;
+                case Keys.F:
+                    resize();
+                    recenter();
+                    break;
+                case Keys.Up:
+                    movepictureboxarround(new Point(0, 1));
+                    break;
+                case Keys.Down:
+                    movepictureboxarround(new Point(0, -1));
+                    break;
+                case Keys.Right:
+                    movepictureboxarround(new Point(-1, 0));
+                    break;
+                case Keys.Left:
+                    movepictureboxarround(new Point(1, 0));
+                    break;
+                case Keys.Add:
+                    zoomIn();
+                    break;
+                case Keys.Subtract:
+                    zoomOut();
+                    break;
+                case Keys.ControlKey:
+                    IscontrolDown = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        private void Imshow_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.ControlKey:
+                    IscontrolDown = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
         #endregion
 
         #region MenuStripClickHandlers
@@ -140,8 +218,14 @@ namespace FormsLib
         /// </summary>
         private void movepanToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Cursor = Cursors.SizeAll;
-            Ismovable = true;
+            if (Ismovable)
+            {
+                toolStripArrow_Click(sender, e);
+            }
+            else
+            {
+                toolStripButtonMove_Click(sender, e);
+            }
         }
 
         private void inToolStripMenuItem_Click(object sender, EventArgs e)
@@ -221,31 +305,50 @@ namespace FormsLib
             zoomOut();
         }
 
+        private void toolStripButtonAbout_Click(object sender, EventArgs e)
+        {
+            new AboutBoxImshow().Show();
+        }
         #endregion
 
         #region PictureBoxeventhandlers
+
         private void Imshow_MouseUp(object sender, MouseEventArgs e)
-        {
-            Ismovable = false;
-        }
-
-        private void Imshow_MouseDown(object sender, MouseEventArgs e)
-        {
-            //MessageBox.Show("mouse down");
-            Ismovable = true;
-            lastKloc = e.Location;
-        }
-
-        private void Imshow_MouseMove(object sender, MouseEventArgs e)
         {
             if (Ismovable)
             {
                 lastKloc.X = lastKloc.X - e.X;
                 lastKloc.Y = lastKloc.Y - e.Y;
                 movepictureboxarround(lastKloc);
+            }
+        }
+
+        private void Imshow_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (Ismovable)
+            {
                 lastKloc = e.Location;
             }
         }
+
+        private void PictureBox_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta>0)
+            {
+                for (int i = 0; i < e.Delta; i++)
+                {
+                    zoomIn();
+                }
+            }
+            else
+            {
+                for (int i = 0; i > e.Delta; i--)
+                {
+                    zoomOut();
+                }
+            }
+        }
+
         #endregion
 
         #endregion
@@ -260,7 +363,6 @@ namespace FormsLib
             //need work here
             OpenFileDialog openDial = new OpenFileDialog();
             openDial.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
-            string fileName = "";
             if (openDial.ShowDialog() == DialogResult.OK)
             {
                 fileName = openDial.FileName;
@@ -311,6 +413,7 @@ namespace FormsLib
             pictureBox.Location = new Point(10, 50);
             pictureBox.TabIndex = 3;
             pictureBox.TabStop = false;
+            pictureBox.BorderStyle = BorderStyle.FixedSingle;
         }
 
         /// <summary>
@@ -326,75 +429,108 @@ namespace FormsLib
         /// </summary>
         void initi()
         {
+            this.Text = fileName + "-Imshow";
             addeventhandlers();
             setuppicturebox();
             addcontrols();
             addeventhandlers();
         }
 
+        /// <summary>
+        /// gets the spatial coordinate of the image pixel under the cursor 
+        /// </summary>
+        /// <returns></returns>
         Point pixelLocationInImageUnderthePointer()
         {
-            //need work
-            int x = -this.Location.X + pictureBox.Location.X+MousePosition.X;
-            int y = -this.Location.Y + pictureBox.Location.Y+MousePosition.Y;
+            int x = MousePosition.X-9-Location.X-pictureBox.Location.X;
+            x = (int)(x * (double)((double) Image.Width/(double)pictureBox.Width));
+            int y = MousePosition.Y -32- Location.Y-pictureBox.Location.Y;
+            y = (int)(y * (double)((double)Image.Height / (double)pictureBox.Height));
             return new Point(x, y);
         }
-         
+
         /// <summary>
         /// resize picture box
         /// </summary>
         void resize()
         {
             setuppicturebox();
-            int width=Image.Width;   
-            int height = Image.Height;
-            int windowWidth = Width-5;
-            int windowheight= Height-55;
-            double aspectRatio = width / height;
-            double widthRatio =(double) width / (double)windowWidth;
-            double heightRatio = (double )height / (double)windowheight;
-            if (aspectRatio>1)
+            #region oldcode
+
+            //int width = Image.Width;
+            //int height = Image.Height;
+            //int windowWidth = Width ;
+            //int windowheight = Height ;
+            //double aspectRatio = width / height;
+            //double widthRatio = (double)width / (double)windowWidth;
+            //double heightRatio = (double)height / (double)windowheight;
+            //if (widthRatio > heightRatio)
+            //{
+            //    if (widthRatio > 1)
+            //    {
+            //        pictureBox.Width = (int)((double)width * (widthRatio-1));
+            //    }
+            //    else
+            //    {
+            //        pictureBox.Width = (int)((double)width * (widthRatio));
+            //    }
+            //    pictureBox.Height = (int)((double)pictureBox.Width / aspectRatio);
+            //}
+            //else
+            //{
+            //    if (heightRatio > 1)
+            //    {
+            //        pictureBox.Height = (int)((double)height * (heightRatio-1));
+            //    }
+            //    else
+            //    {
+            //        pictureBox.Height = (int)((double)height * (heightRatio));
+            //    }
+            //    pictureBox.Width = (int)((double)pictureBox.Height * aspectRatio);
+            //}
+            #endregion
+            double aspectRatio = (double)Width / (double)Height;
+            double aspectRatioImage = (double)Image.Width / (double)Image.Height;
+            if (aspectRatio < aspectRatioImage)
             {
-                if (widthRatio > 1)
-                {
-                    pictureBox.Width = (int)((double)width / (widthRatio));
-                }
-                else
-                {
-                    pictureBox.Width = (int)((double)width * (1+widthRatio));
-                }
-                pictureBox.Height = (int)((double)pictureBox.Width / aspectRatio);
+                pictureBox.Width = (int)((double)Image.Width * (double)((double)Width / (double)Image.Width))-125;
+                pictureBox.Height = (int)((double)pictureBox.Width / aspectRatioImage);
             }
             else
             {
-                if (heightRatio > 1)
-                {
-                    pictureBox.Height = (int)((double)height / (heightRatio));
-                } 
-                else
-                {
-                    pictureBox.Height = (int)((double)height * (1+heightRatio));
-                }
-                pictureBox.Width = (int)((double)pictureBox.Height * aspectRatio);
+                pictureBox.Height = (int)((double)Image.Height * (double)((double)Height / (double)Image.Height))-125;
+                pictureBox.Width = (int)((double)pictureBox.Height * aspectRatioImage);
             }
-        } 
+            recenter();
+        }
 
+        void recenter()
+        {
+            pictureBox.Location = new Point(
+                ((Width - pictureBox.Width) / 2), 
+                ((Height - pictureBox.Height) / 2));
+        }
         /// <summary>
         /// move picture box
         /// </summary>
         /// <param name="offset">defines the offset to move the picturebox</param>
         void movepictureboxarround(Point offset)
         {
-            offset = new Point(pictureBox.Location.X - offset.X, pictureBox.Location.Y - offset.Y );
-            pictureBox.Location = offset;
+            pictureBox.Location  = new Point(pictureBox.Location.X - offset.X, pictureBox.Location.Y - offset.Y );
         }
 
+        /// <summary>
+        /// Increases the width and height of the picture box by 1.1
+        /// </summary>
         void zoomIn()
         {
             pictureBox.Width = (int)((double)pictureBox.Width * (double)1.1);
             pictureBox.Height = (int)((double)pictureBox.Height * (double)1.1);
         }
 
+        /// <summary>
+        /// Reduces the width and height of the picture box by 0.9
+        /// </summary>
         void zoomOut()
         {
             pictureBox.Width = (int)((double)pictureBox.Width * (double)0.9);

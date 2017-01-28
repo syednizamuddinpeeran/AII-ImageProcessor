@@ -28,7 +28,7 @@ namespace imageShow
             }
             else
                 goto again;
-            Application.Run(new Imshow(new Bitmap(fileName)));
+            Application.Run(new Imshow(new Bitmap(fileName),"test"));
         }
     }
 }

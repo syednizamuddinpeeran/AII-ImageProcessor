@@ -5,10 +5,14 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FormsLib")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("AIIImageProcessor Forms(UI) Library")]
+[assembly: AssemblyDescription("AIIImageProcessor Forms(UI) Library is Matlab's imageprocessing like tool library for c#."+
+    "It has powerfull featres like Imshow."+
+    "These features can also be control using keyboard commands"+
+    "The library is open source."+ 
+    "Any issues or suggecions from the users will be highly appreticated")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("AII Institute")]
 [assembly: AssemblyProduct("FormsLib")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
